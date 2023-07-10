@@ -15,6 +15,9 @@ Check out his videos, most of them are interesting :)
 
 
 The .exe file is located in the dist folder
+
 Left mouse click to place start position, end position and barrier
+
 Right mous click to erase the tile
+
 "c" button to reset
