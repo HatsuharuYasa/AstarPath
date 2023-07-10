@@ -20,4 +20,7 @@ Left mouse click to place start position, end position and barrier
 
 Right mous click to erase the tile
 
+"Space" button to start the algortihm
+
 "c" button to reset
+
