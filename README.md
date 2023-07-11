@@ -26,6 +26,6 @@ Right mous click to erase the tile
 
 
 
-# Changelog 11th July 2023
+--Changelog 11th July 2023--
 
 The Algorithm is slightly modify to be able to take path diagonally, that also include for the diagonal wall to be impassible.
