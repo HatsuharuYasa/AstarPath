@@ -188,7 +188,7 @@ def algorithm(draw, grid, start, end):
 
             
 def main(win, width):
-    ROWS = 25
+    ROWS = 50
     grid = make_grids(ROWS, width)
 
     pos_start = None

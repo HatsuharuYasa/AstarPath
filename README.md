@@ -24,3 +24,8 @@ Right mous click to erase the tile
 
 "c" button to reset
 
+
+
+# Changelog 11th July 2023
+
+The Algorithm is slightly modify to be able to take path diagonally, that also include for the diagonal wall to be impassible.
