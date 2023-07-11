@@ -74,25 +74,19 @@ class Spot:
 
     def update_neighbour(self, grid):
         self.neighbours = []
-        if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_barrier(): # Down
-            self.neighbours.append(grid[self.row + 1][self.col])
-
-        if self.col > 0 and not grid[self.row][self.col-1].is_barrier(): # Left
-            self.neighbours.append(grid[self.row][self.col - 1])
-
-        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier(): # Up
-            self.neighbours.append(grid[self.row - 1][self.col])
-
-        if self.col < self.total_rows - 1 and not grid[self.row][self.col + 1].is_barrier(): # Right
-            self.neighbours.append(grid[self.row][self.col + 1])
-
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (self.row + i) >= 0 and (self.row + i) < self.total_rows and (self.col + j) >= 0 and (self.col + j) < self.total_rows:
+                    if not(i == 0 and j == 0) and not grid[self.row + i][self.col + j].is_barrier():
+                        self.neighbours.append(grid[self.row + i][self.col + j])
+    
     def __lt__(self, other):
         return False
 
-def h(p1, p2):
+def dist(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
-    return abs(x2 - x1) + abs(y2 - y1)
+    return math.sqrt(pow(x2-x1, 2) + pow(y2-y1, 2))
 
 def make_grids(rows, width):
     grid = []
@@ -130,23 +124,28 @@ def get_clicked_pos(pos, rows, width):
     col = y // gap
     return row, col
 
+def wall_check(current, neighbour, grid):
+    x1, y1 = current.get_pos()
+    x2, y2 = neighbour.get_pos()
+    if grid[x1][y2].is_barrier() and grid[x2][y1].is_barrier():
+        return False
+    return True
+
 def reconstruct_path(previous, current, draw):
     while current in previous:
+        print(current.get_pos())
         current = previous[current]
         current.make_path()
         draw()
         
-
-
 def algorithm(draw, grid, start, end):
-    count = 0
     open_set = PriorityQueue()
-    open_set.put((0, count, start))
+    open_set.put((0, start))
     previous = {}
     g_score = {spot: float("inf") for row in grid for spot in row}
     g_score[start] = 0
     f_score = {spot: float("inf") for row in grid for spot in row}
-    f_score[start] = h(start.get_pos(), end.get_pos())
+    f_score[start] = dist(start.get_pos(), end.get_pos())
 
     open_set_hash = {start}
 
@@ -155,7 +154,7 @@ def algorithm(draw, grid, start, end):
             if event.type == pygame.QUIT:
                 pygame.quit()
         
-        current = open_set.get()[2]
+        current = open_set.get()[1]
         open_set_hash.remove(current)
 
         if current == end:
@@ -164,18 +163,21 @@ def algorithm(draw, grid, start, end):
             start.make_start()
             return True
 
-        for neighbour in current.neighbours:
-            g_tmp = g_score[current] + 1
+        blocked = False
+
+        for neighbour in current.neighbours: #checking the surrounding neighbours
+            g_tmp = g_score[current] + dist(current.get_pos(), neighbour.get_pos())
 
             if g_tmp < g_score[neighbour]:
                 previous[neighbour] = current
                 g_score[neighbour] = g_tmp
-                f_score[neighbour] = g_tmp + h(neighbour.get_pos(), end.get_pos())
-                if neighbour not in open_set_hash:
-                    count += 1
-                    open_set.put((f_score[neighbour], count, neighbour))
+                f_score[neighbour] = g_tmp + dist(neighbour.get_pos(), end.get_pos()) #heuristic
+                if neighbour not in open_set_hash and wall_check(current, neighbour, grid): #register the new neighbour
+                    open_set.put((f_score[neighbour], neighbour))
                     open_set_hash.add(neighbour)
                     neighbour.make_open()
+        
+        
         draw()
 
         if current != start:    
@@ -186,7 +188,7 @@ def algorithm(draw, grid, start, end):
 
             
 def main(win, width):
-    ROWS = 50
+    ROWS = 25
     grid = make_grids(ROWS, width)
 
     pos_start = None
